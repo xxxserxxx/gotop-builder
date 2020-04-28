@@ -10,12 +10,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
 
 func main() {
+	local := flag.Bool("l", false, "Build local packages")
 	help := flag.Bool("h", false, "Print help")
+	// FIXME This should come from the extension, and all of the extensions should match major revisions
 	rev := flag.String("r", "v3.5.1", "Tagged gotop version")
 	flag.Parse()
 	if *help {
@@ -37,18 +40,36 @@ $ sudo cp gotop /usr/local/bin
 		os.Exit(0)
 	}
 
-	//////////////////////////////////
-	// fetch gotop's main.go
-	resp, err := http.Get("https://raw.githubusercontent.com/xxxserxxx/gotop/" + *rev + "/cmd/gotop/main.go")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer resp.Body.Close()
-	bs, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	major := strings.Split(*rev, ".")[0]
+	var bs []byte
+	var replace string
+	if *local {
+		var err error
+		bs, err = ioutil.ReadFile(filepath.Join("..", "gotop", "cmd", "gotop", "main.go"))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		replace = fmt.Sprintf("replace github.com/xxxserxxx/gotop/%s => %s\n", major, "../gotop")
+		for _, ext := range flag.Args() {
+			bases := strings.Split(ext, "/")
+			base := bases[len(bases)-1]
+			replace = replace + fmt.Sprintf("replace %s => ../%s\n", ext, base)
+		}
+	} else {
+		//////////////////////////////////
+		// fetch gotop's main.go
+		resp, err := http.Get("https://raw.githubusercontent.com/xxxserxxx/gotop/" + *rev + "/cmd/gotop/main.go")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer resp.Body.Close()
+		bs, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 
 	//////////////////////////////////
@@ -78,6 +99,8 @@ $ sudo cp gotop /usr/local/bin
 
 require github.com/xxxserxxx/gotop/%s %s
 
+%s
+
 go 1.14
 `
 	gm, err := os.Create("go.mod")
@@ -86,8 +109,7 @@ go 1.14
 		os.Exit(1)
 	}
 	defer gm.Close()
-	major := strings.Split(*rev, ".")[0]
-	fmt.Fprintf(gm, mods, major, *rev)
+	fmt.Fprintf(gm, mods, major, *rev, replace)
 }
 
 // Most of this copied from

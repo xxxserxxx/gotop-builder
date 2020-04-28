@@ -7,7 +7,10 @@ extensions. You need:
 2. One (or more) extensions to enable (e.g. "github.com/xxxserxxx/gotop-nvidia")
 3. Go. Since gotop requires Go >= 1.14, that's what you'll need.
 
-Example:
+Run with `-h` to get help text, including a mostly complete copy of this 
+file.
+
+## Example
 
 ```
 $ go run ./build.go -r v3.5.1 github.com/xxxserxxx/gotop-nvidia
