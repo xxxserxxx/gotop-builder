@@ -20,9 +20,9 @@ jobs:
         shell: bash
         run: curl -O https://raw.githubusercontent.com/xxxserxxx/gotop-builder/master/build.go
 
-      - name: Show builder
+      - name: Show version
         shell: bash
-        run: cat build.go
+        run: echo ${VERSION}
 
       - name: Generate gotop.go
         shell: bash
@@ -30,7 +30,7 @@ jobs:
 
       - name: Compile
         shell: bash
-        run: go build -o gotop -ldflags "-extldflags '-static' -X main.Version=${VERSION}+nvidia+remote -X main.BuildDate=$(date +%Y%m%dT%H%M%s)" ./cmd/gotop
+        run: go build -o gotop -ldflags "-extldflags '-static' -X main.Version=${VERSION}+nvidia+remote -X main.BuildDate=$(date +%Y%m%dT%H%M%s)" ./gotop.go
 
       - name: Pre-release
         uses: "marvinpinto/action-automatic-releases@latest"
