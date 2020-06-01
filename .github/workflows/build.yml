@@ -1,0 +1,33 @@
+name: Build Go binaries with all extensions enabled
+
+on: 
+  repository_dispatch:
+    types: [my-release]
+
+env:
+    VERSION: ${{ github.event.client_payload.tag }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get builder
+        shell: bash
+        run: curl -O https://raw.githubusercontent.com/xxxserxxx/gotop-builder/master/build.go
+
+      - name: Generate gotop.go
+        shell: bash
+        run: go run ./build.go -r ${VERSION} github.com/xxxserxxx/gotop-remote github.com/xxxserxxx/gotop-nvidia
+
+      - name: Compile
+        shell: bash
+        run: go build -o gotop -ldflags "-X main.Version=${VERSION}+nvidia+remote -X main.BuildDate=$(date +%Y%m%dT%H%M%s)" ./cmd/gotop
+
+      - name: Pre-release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${VERSION}+nvidia+remote"
+          draft: false
+          title: "${VERSION} with NVidia & Remote extensions"
+          files: gotop
