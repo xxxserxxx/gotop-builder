@@ -20,6 +20,10 @@ jobs:
         shell: bash
         run: curl -O https://raw.githubusercontent.com/xxxserxxx/gotop-builder/master/build.go
 
+      - name: Show builder
+        shell: bash
+        run: cat build.go
+
       - name: Generate gotop.go
         shell: bash
         run: go run ./build.go -r ${VERSION} github.com/xxxserxxx/gotop-remote github.com/xxxserxxx/gotop-nvidia
