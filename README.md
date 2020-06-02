@@ -13,8 +13,14 @@ file.
 ## Example
 
 ```
-$ go run ./build.go -r v3.5.1 github.com/xxxserxxx/gotop-nvidia
+$ go run ./build.go -r v4.0.0 github.com/xxxserxxx/gotop-nvidia
 $ go build -o gotop ./gotop.go
-$ sudo cp gotop /usr/local/bin
 ```
+
+## Binaries
+
+In the releases section are all-inclusive binaries for Linux.  These binaries have all extensions compiled into them:
+
+- [NVidia GPU support](https://github.com/xxxserxxx/gotop-nvidia)
+- [Remote server monitoring](https://github.com/xxxserxxx/gotop-remote)
 
