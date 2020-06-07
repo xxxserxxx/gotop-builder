@@ -23,16 +23,20 @@ jobs:
       - name: Generate gotop.go
         shell: bash
         run: go run ./build.go -r ${VERSION} github.com/xxxserxxx/gotop-remote github.com/xxxserxxx/gotop-nvidia
+        env:
+            VERSION: ${{ github.event.client_payload.tag }}
 
       - name: Compile
         shell: bash
         run: go build -o gotop -ldflags "-extldflags '-static' -X main.Version=${VERSION}+nvidia+remote -X main.BuildDate=$(date +%Y%m%dT%H%M%s)" ./gotop.go
+        env:
+            VERSION: ${{ github.event.client_payload.tag }}
 
       - name: Pre-release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${VERSION}+nvidia+remote"
+          automatic_release_tag: "${{ github.event.client_payload.tag }}+nvidia+remote"
           draft: false
-          title: "${VERSION} with NVidia & Remote extensions"
+          title: "${{ github.event.client_payload.tag }} with NVidia & Remote extensions"
           files: gotop
